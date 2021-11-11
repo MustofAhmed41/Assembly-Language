@@ -1,0 +1,107 @@
+.MODEL SMALL
+.STACK 200H
+.DATA
+
+MSG1 DB 0DH,0AH,'The first number is : $'   
+MSG2 DB 0DH,0AH,'The second number is : $'  
+MSG3 DB 0DH,0AH,'The answer is : $'  
+
+.CODE                      
+
+PRINTCHAR MACRO D
+    MOV AH,2
+    MOV DL,D
+    INT 21H    
+ENDM    
+
+PRINTMSG MACRO D
+    PUSH AX
+    PUSH DX
+    
+    MOV AH,9
+    LEA DX,D
+    INT 21H    
+    
+    POP DX
+    POP AX
+    
+ENDM
+
+MAIN PROC
+           
+    MOV AX,@DATA
+    MOV DS,AX   
+    
+    MOV AX,20
+    
+    PRINTMSG MSG1
+    
+    CALL OUTDEC
+    
+    
+    MOV BX,15
+    
+    PRINTMSG MSG2
+        
+    PUSH AX
+    MOV AX,BX
+    CALL OUTDEC    
+    POP AX
+    
+    PRINTMSG MSG3
+        
+    GO: 
+    MOV DX,0
+    DIV BX
+    MOV AX,BX
+    MOV BX,DX
+    
+    CMP DX,0
+    JNE GO
+    
+    
+    CALL OUTDEC 
+            
+    MOV AX,4C00H
+    INT 21H                                                        
+                 
+    MAIN ENDP  
+        
+    OUTDEC PROC
+	PUSH AX
+	PUSH BX
+	PUSH CX
+	PUSH DX
+
+	END_IF1:
+	XOR CX,CX
+	MOV BX,10D
+
+	REPEAT1:
+	XOR DX,DX
+	DIV BX
+	PUSH DX
+	INC CX
+	CMP AX,0
+	JNE REPEAT1
+
+	MOV AH,2
+	PRINT_LOOP:
+	POP DX
+	OR DL,30H
+	INT 21H
+	LOOP PRINT_LOOP
+
+	POP DX
+	POP CX
+	POP BX
+	POP AX
+
+	    RET
+	
+    OUTDEC ENDP
+    
+        
+END MAIN
+    
+    

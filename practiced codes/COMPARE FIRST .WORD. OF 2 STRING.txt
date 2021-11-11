@@ -1,0 +1,41 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+
+   STR1 DW 'ABCDEFGH$'
+   STR2 DW 'ABKLMNIO$'
+   TEMP1 DW ?
+.CODE
+    MAIN PROC 
+        MOV AX,@DATA
+        MOV DS,AX 
+        MOV ES,AX
+        
+        CLD 
+        
+        LEA SI,STR1
+        LEA DI,STR2
+        
+        
+        CMPSW
+        JZ END_W
+                
+        MOV AH,9
+        LEA DX,STR1
+        INT 21H           
+        
+        
+        CALL NEWLINE 
+        
+        MOV AH,9
+        LEA DX,STR2
+        INT 21H
+        
+        END_W:
+        
+        MOV AX,4C00H
+        INT 21H
+            
+    MAIN ENDP 
+    
+ END MAIN

@@ -1,0 +1,101 @@
+.MODEL SMALL
+.STACK 200H
+.DATA
+ERRORMSG DB 'WRONG INPUT$'
+.CODE                      
+
+PRINTCHAR MACRO D
+    MOV AH,2
+    MOV DL,D
+    INT 21H    
+ENDM    
+
+MAIN PROC
+           
+    MOV AX,@DATA
+    MOV DS,AX
+           
+    MOV AH,1
+    INT 21H
+    
+    
+    CALL NEWLINE 
+        
+    CMP AL,'C'
+    JL ERROR
+    
+    CMP AL,'F'
+    JG ERROR
+    
+    SUB AL,37H
+    MOV AH,0
+    CALL OUTDEC    
+        
+    JMP END_W
+    
+    ERROR:
+    MOV AH,9
+    LEA DX,ERRORMSG
+    INT 21H
+    
+    END_W:
+            
+    MOV AX,4C00H
+    INT 21H                                                        
+                 
+    MAIN ENDP 
+
+OUTDEC PROC
+	PUSH AX
+	PUSH BX
+	PUSH CX
+	PUSH DX
+
+	END_IF1:
+	XOR CX,CX
+	MOV BX,10D
+
+	REPEAT1:
+	XOR DX,DX
+	DIV BX
+	PUSH DX
+	INC CX
+	CMP AX,0
+	JNE REPEAT1
+
+	MOV AH,2
+	PRINT_LOOP:
+	POP DX
+	OR DL,30H
+	INT 21H
+	LOOP PRINT_LOOP
+
+	POP DX
+	POP CX
+	POP BX
+	POP AX
+
+	RET
+OUTDEC ENDP
+
+    PROC NEWLINE
+    
+    PUSH AX
+    PUSH DX
+    
+    MOV AH,2
+    MOV DL,0DH
+    INT 21H
+            
+    MOV DL,0AH
+    INT 21H
+    
+    POP DX
+    POP AX
+    
+    RET
+    NEWLINE ENDP          
+        
+END MAIN
+    
+    

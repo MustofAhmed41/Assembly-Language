@@ -1,0 +1,127 @@
+.MODEL SMALL
+.STACK 200H
+.DATA
+
+M2 DB 0DH,0AH,'ENTER A VALUE : $'
+EVENNUMBER DB 0DH,0AH,'EVEN NUMBER $'   
+ODDNUMBER DB 0DH,0AH,'ODD NUMBER $'   
+
+.CODE                      
+
+PRINTCHAR MACRO D
+    MOV AH,2
+    MOV DL,D
+    INT 21H    
+ENDM    
+
+MAIN PROC
+           
+    MOV AX,@DATA
+    MOV DS,AX
+           
+    CALL INDEC
+    
+    MOV BX,2
+    
+    DIV BX
+    
+    CMP DX,0
+    JE EVEN
+    
+    MOV AH,9
+    LEA ODDNUMBER 
+    INT 21H
+        
+    JMP END_W
+        
+    EVEN:  
+    
+    MOV AH,9
+    LEA EVENNUMBER 
+    INT 21H
+    
+    END_W:
+    
+            
+    MOV AX,4C00H
+    INT 21H                                                        
+                 
+    MAIN ENDP  
+
+    PROC NEWLINE
+    
+    PUSH AX
+    PUSH DX
+    
+    MOV AH,2
+    MOV DL,0DH
+    INT 21H
+            
+    MOV DL,0AH
+    INT 21H
+    
+    POP DX
+    POP AX
+    
+    RET
+    NEWLINE ENDP  
+    
+    
+    INDEC PROC
+	PUSH BX
+	PUSH CX
+	PUSH DX
+
+	BEGIN:
+
+	MOV AH,9
+	LEA DX,M2
+	INT 21H
+	
+	XOR BX,BX ;total=0
+	XOR CX,CX
+	MOV AH,1
+	INT 21H
+
+	REPEAT2:
+	CMP AL,'0'
+	JNGE NOT_DIGIT
+	CMP AL,'9'
+	JNLE NOT_DIGIT
+	
+	AND AX,000FH ; ascii to binary
+	PUSH AX
+	MOV AX,10 ;total=totalx10+digit
+
+	MUL BX
+	POP BX
+	ADD BX,AX
+	MOV AH,1
+	INT 21H
+
+	CMP AL,0DH
+	JNE REPEAT2
+	MOV AX,BX
+
+	EXIT:
+	POP DX
+	POP CX
+	POP BX
+
+	RET
+
+	NOT_DIGIT:
+	MOV AH,2
+	MOV DL,0DH
+	INT 21H
+	MOV DL,0AH
+	INT 21H
+	JMP BEGIN
+
+	RET
+INDEC ENDP
+    
+        
+END MAIN
+    
+    

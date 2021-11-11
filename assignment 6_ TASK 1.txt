@@ -1,0 +1,109 @@
+.MODEL SMALL
+.STACK 100H
+.CODE  
+.DATA
+msg1 DB 0DH,0AH,'Enter a character between 0-9 or A-F hex digit to be converted : $'
+msg2 DB 0DH,0AH,'The converted character is : $'
+msg3 DB 0DH,0AH,'If you want to contine you type Y or else N :$'
+msg4 DB 0DH,0AH,'Illegal character entered. Enter Again $'   
+msg5 DB 0DH,0AH,'Can only take input Y or N $'
+
+
+MAIN PROC
+    
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    REPEAT:
+    
+    MOV AH,9
+    LEA DX,msg1
+    INT 21H
+        
+    MOV AH,1
+    INT 21H
+    MOV CL,AL
+    
+    
+    
+    CMP CL,'0'
+    
+    JL NEXT:  ; if input is less than 0 then go to NEXT because input is A-F    or illegal
+    
+    CMP CL,'9' ; if input is greater than 9 then go to NEXT because input is A-F or illegal
+    
+    JG NEXT: 
+    
+    MOV AH,9
+    LEA DX,msg2
+    INT 21H
+    
+    MOV AH,2
+    MOV DL,CL
+    INT 21H
+    
+    JMP END_:
+    
+    NEXT:
+    
+    
+    CMP CL,'A'
+    
+    JL NEXT_:
+        
+    CMP CL,'F' 
+    
+    JG NEXT_:
+    
+    MOV AH,9
+    LEA DX,msg2
+    INT 21H
+    
+    MOV AH,2 
+    MOV DL,'1'
+    INT 21H
+    SUB CL,17
+    MOV DL,CL
+    INT 21H 
+    JMP END_: 
+    
+    NEXT_: 
+    
+    MOV AH,9
+    LEA DX,msg4
+    INT 21H
+    JMP REPEAT:             
+      
+    
+    END_:
+    
+    MOV AH,9
+    LEA DX,msg3
+    INT 21H    
+    
+    MOV AH,1
+    INT 21H
+    MOV CL,AL
+       
+    CMP CL,'Y'
+    
+    JE REPEAT:
+    
+    CMP CL,'N'
+    
+    JE TERMINATE:
+    
+    MOV AH,9
+    LEA DX,msg5
+    INT 21H
+     
+    JMP END_:
+     
+    TERMINATE:
+    
+    
+    
+    MOV AX,4C00H
+    INT 21H
+MAIN ENDP
+    END MAIN

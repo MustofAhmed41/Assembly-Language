@@ -1,0 +1,99 @@
+.MODEL SMALL
+.STACK 200H
+.DATA
+
+CONSTANT1 EQU '1'
+MSG1 DB 0DH,0AH,'Enter a string $'   
+TEXT DB 100 DUP('$')
+SIZE DW ?
+
+.CODE                      
+
+PRINTCHAR MACRO D
+    MOV AH,2
+    MOV DL,D
+    INT 21H    
+ENDM    
+
+MAIN PROC
+           
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    XOR CX,CX
+    
+    MOV AH,1
+    INT 21H
+    
+    LEA SI,TEXT
+    
+    START: 
+    CMP AL,0DH
+    JE END_W
+    XOR DX,DX
+    MOV DL,AL
+    PUSH DX
+    INC CX 
+    
+    MOV [SI],AL
+    INC SI
+    
+    INT 21H
+    JMP START
+    
+    
+    
+    END_W:
+    
+    MOV SIZE,CX
+    
+    MOV AH,2
+    
+    CALL NEWLINE
+    
+    PRINTANSWER:
+    POP DX
+    INT 21H        
+    LOOP PRINTANSWER
+    
+    
+    CALL NEWLINE
+    
+    DEC SI         
+             
+    ANSWER:
+    MOV AH,2
+    MOV DL,[SI]
+    DEC SI
+    INT 21H
+    DEC SIZE
+    CMP SIZE,0
+    JNE ANSWER
+    
+    
+    MOV AX,4C00H
+    INT 21H                                                        
+                 
+    MAIN ENDP  
+
+    PROC NEWLINE
+    
+    PUSH AX
+    PUSH DX
+    
+    MOV AH,2
+    MOV DL,0DH
+    INT 21H
+            
+    MOV DL,0AH
+    INT 21H
+    
+    POP DX
+    POP AX
+    
+    RET
+    NEWLINE ENDP          
+        
+END MAIN
+    
+    
